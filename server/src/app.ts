@@ -3,6 +3,8 @@ import cors from "cors";
 import { env } from "./config/env";
 import router from "./routes";
 import {errorHandler} from "./middlewares/error.middleware";
+import {notFoundHandler} from "./middlewares/notFound.middleware";
+
 
 const app = express();
 
@@ -22,6 +24,9 @@ app.use("/api/v1", router);
 //   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
 //   next();
 // });
+
+// 404 Not Found
+app.use(notFoundHandler);
 
 // Error handler
 app.use(errorHandler);
