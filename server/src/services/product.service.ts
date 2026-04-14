@@ -32,3 +32,26 @@ export const createProduct = async(payload: CreateProductInput) => {
 
 	return product;
 }
+
+// Get Product By ID
+export const getProductById = async (id: string) => {
+	const product = await Product.findById(id);
+
+	return product;
+}
+
+// Update Product By ID
+export const updateProductById = async (id: string, payload: Partial<CreateProductInput>) => {
+	
+	const updatedProduct = await Product.findByIdAndUpdate(id, payload, {new: true, runValidators: true});
+
+	return updatedProduct;
+}
+
+// Delete Product By ID - NOT YET FINISHED
+export const deleteProductById = async (id: string) => {
+	const deleteProduct = await Product.findByIdAndDelete(id);
+
+	return deleteProduct;
+}
+

@@ -9,6 +9,8 @@ export interface ProductDocument {
   costPrice: number;
   stock: number;
   isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 
@@ -49,13 +51,21 @@ const productSchema = new Schema<ProductDocument>({
 		min: 0,
 		default: 0,
 	},
-
+	stock: {
+		type: Number,
+		required: true,
+		min: 0,
+		default: 0,
+	},
 	isActive: {
 		type: Boolean,
 		required: true,
 		default: true,
 	}
-}
+},
+{
+    timestamps: true,
+  }
 );
 
 export const Product = model<ProductDocument>("Product", productSchema);

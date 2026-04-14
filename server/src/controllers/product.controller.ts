@@ -1,5 +1,5 @@
 import {Request, Response} from 'express';
-import {getAllProducts, createProduct} from '../services/product.service';
+import {getAllProducts, createProduct, getProductById, updateProductById} from '../services/product.service';
 import {asyncHandler} from '../utils/asyncHandler';
 import {AppError} from '../utils/AppError';
 
@@ -47,4 +47,55 @@ export const createProductController = asyncHandler(
 		});
 	}
 );
+
+// Get Product By ID
+export const getProductByIdController = asyncHandler( async(req: Request, res: Response) => {
+	const {id} = req.params;
+
+	const product = await getProductById(id);
+
+	if(!product){
+		throw new AppError("Product not found", 404);
+	}
+
+	res.status(200).json({
+		success: true,
+		data: product,
+	})
+})
+
+// Update Product By ID
+export const updateProductByIdController = asyncHandler( async (req: Request, res: Response) => {
+	const {id} = req.params;
+	const payload = req.body;
+
+	if(!payload || Object.keys(payload).length === 0){
+		throw new AppError("No new data provided", 400);
+	}
+
+	if(payload.price !== undefined){
+		payload.price = Number(payload.price);
+	}
+
+	if(payload.costPrice !== undefined){
+		payload.costPrice = Number(payload.costPrice);
+	}
+
+	if(payload.stock !== undefined){
+		payload.stock = Number(payload.stock);
+	}
+
+	const updatedProduct =  await updateProductById(id, payload);
+
+	if(!updatedProduct){
+		throw new AppError("Product not found", 404);
+	}
+
+	res.status(200).json({
+		success:true,
+		message: "Product updated successfully",
+		data: updatedProduct
+	})
+})
+
 
