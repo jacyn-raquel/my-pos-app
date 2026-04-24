@@ -1,8 +1,9 @@
 import {Product} from '../models/product.model';
 
 // GET ALL products
-export const getAllProducts = async() => {
-	const products = await Product.find().sort({createdAt: -1});
+export const getAllProducts = async(includeInactive = true) => {
+	const filter = includeInactive ? {} : {isActive: true};
+	const products = await Product.find(filter).sort({createdAt: -1});
 	return products;
 }
 
@@ -49,9 +50,23 @@ export const updateProductById = async (id: string, payload: Partial<CreateProdu
 }
 
 // Delete Product By ID - NOT YET FINISHED
-export const deleteProductById = async (id: string) => {
-	const deleteProduct = await Product.findByIdAndDelete(id);
+// export const deleteProductById = async (id: string) => {
+// 	const deleteProduct = await Product.findByIdAndDelete(id);
 
-	return deleteProduct;
+// 	return deleteProduct;
+// }
+
+
+// Deactivate Product by ID - SOFT delete
+export const deactivateProductById = async (id: string) => {
+	const deactivateProduct = await Product.findByIdAndUpdate(id, {isActive: false}, {new:true, runValidators:true});
+
+	return deactivateProduct;
 }
 
+// Reactivate Product by ID - bring back
+export const reactivateProductById = async(id:string) => {
+	const reactivateProduct = await Product.findByIdAndUpdate(id, {isActive: true}, {new:true, runValidators: true});
+
+	return reactivateProduct;
+}

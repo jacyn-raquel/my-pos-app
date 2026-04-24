@@ -1,10 +1,22 @@
-import {Request, Response, NextFunction} from 'express';
+import { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
 
-export const errorHandler = (err:any, _req:Request, res:Response, _next:NextFunction) => {
-	console.error("🔥 ERROR:", err);
+export const errorHandler = (
+  error: unknown,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (error instanceof ZodError) {
+    return res.status(400).json({
+      success: false,
+      message: error.issues[0]?.message || "Invalid input",
+      errors: error.issues,
+    });
+  }
 
-	res.status(err.status || 500).json({
-		success:false,
-		message: err.message || "Internal Server Error",
-	});
+  return res.status(500).json({
+    success: false,
+    message: error instanceof Error ? error.message : "Internal server error",
+  });
 };
