@@ -2,21 +2,31 @@ import { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
 
 export const errorHandler = (
-  error: unknown,
-  req: Request,
+  err: any,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
-  if (error instanceof ZodError) {
-    return res.status(400).json({
+
+  // MongoDB duplicate key error
+  if (err?.code === 11000) {
+    if (err.keyPattern?.sku) {
+      return res.status(409).json({
+        success: false,
+        message: "SKU already exists",
+      });
+    }
+
+    return res.status(409).json({
       success: false,
-      message: error.issues[0]?.message || "Invalid input",
-      errors: error.issues,
+      message: "Duplicate field value",
     });
   }
 
-  return res.status(500).json({
+  const status = err.status || 500;
+
+  res.status(status).json({
     success: false,
-    message: error instanceof Error ? error.message : "Internal server error",
+    message: err.message || "Internal Server Error",
   });
 };

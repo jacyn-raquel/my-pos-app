@@ -5,17 +5,23 @@ import {AppError} from '../utils/AppError';
 
 // GET products
 export const getProductsController = asyncHandler(
-	async (_req: Request, res: Response) => {
-		const includeInactiveProducts = _req.query.includeInactive === "true"
+  async (req: Request, res: Response) => {
+    const { page, limit, search, includeInactiveProducts } = req.query as any;
 
-		const products = await getAllProducts(includeInactiveProducts);
+    const result = await getAllProducts({
+      includeInactiveProducts,
+      page,
+      limit,
+      search,
+    });
 
-		res.status(200).json({
-			success:true,
-			data: products,
-		})
-	}
-	)
+    res.status(200).json({
+      success: true,
+      data: result.products,
+      pagination: result.pagination,
+    });
+  }
+);
 
 // CREATE product
 export const createProductController = asyncHandler(

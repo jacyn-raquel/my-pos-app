@@ -1,11 +1,52 @@
 import {Product} from '../models/product.model';
 
-// GET ALL products
-export const getAllProducts = async(includeInactive = true) => {
-	const filter = includeInactive ? {} : {isActive: true};
-	const products = await Product.find(filter).sort({createdAt: -1});
-	return products;
+
+type GetAllProductsOptions = {
+	includeInactive?: boolean,
+	page?: number,
+	limit?: number,
+	search?: string,
 }
+
+// GET ALL products
+export const getAllProducts = async({
+	includeInactive = false,
+	page = 1,
+	limit = 10,
+	search = "",
+}: GetAllProductsOptions) =>{
+	const filter: Record<string, any> = {};
+
+	if(!includeInactive){
+		filter.isActive = true;
+	}
+
+	if (search) {
+    filter.$or = [
+      { name: { $regex: search, $options: "i" } },
+      { sku: { $regex: search, $options: "i" } },
+      { barcode: { $regex: search, $options: "i" } },
+      { category: { $regex: search, $options: "i" } },
+    ];
+  }
+
+   const skip = (page - 1) * limit;
+
+  const [products, total] = await Promise.all([
+    Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+    Product.countDocuments(filter),
+  ]);
+
+  return {
+    products,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
 
 type CreateProductInput = {
   name: string;

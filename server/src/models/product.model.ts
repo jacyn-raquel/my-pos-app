@@ -68,4 +68,6 @@ const productSchema = new Schema<ProductDocument>({
   }
 );
 
+//productSchema.index({sku: 1}, {unique: true});
+
 export const Product = model<ProductDocument>("Product", productSchema);

@@ -31,4 +31,40 @@ export const updateProductSchema = z
 	})
 
 
+});
+
+
+// Validate ID Schema
+export const productIdSchema = z.object({
+	params: z.object({
+		id: z.string().regex(/^[0-9a-fA-F]{24}$/, "Invalid product ID"),
+	})
+});
+
+// Validate Product Query Schema
+export const getProductsQuerySchema = z.object({
+	query: z.object({
+		page: z
+			.string()
+			.optional()
+			.transform((val) => (val ? Number(val): 1))
+			.refine((val) => val >= 1, {
+				message: "Page must be at least 1"
+			}),
+
+		limit: z
+			.string()
+			.optional()
+			.transform((val) => (val ? Number(val): 10))
+			.refine((val) => val >= 1 && val <= 100, {
+				message: "Limit must be between 1 and 100"
+			}),
+
+		search: z.string().optional().default(""),
+
+		includeInactiveProducts: z
+			.string()
+			.optional()
+			.transform((val)=> val === "true")
+	}),
 })
